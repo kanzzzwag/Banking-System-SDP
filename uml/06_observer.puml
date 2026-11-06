@@ -1,0 +1,46 @@
+@startuml observer
+title Observer Pattern - Transaction notifications
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+class TransactionPublisher {
+  -listeners : List<TransactionListener>
+  +subscribe(l : TransactionListener)
+  +unsubscribe(l : TransactionListener)
+  +publish(t : Transaction)
+}
+
+interface TransactionListener {
+  +onTransaction(t : Transaction)
+}
+
+class FraudDetectionService {
+  -amountLimit : double
+  -maxTransactions : int
+  -periodSeconds : int
+  +onTransaction(t : Transaction)
+}
+class SmsNotificationService {
+  +onTransaction(t : Transaction)
+}
+class AuditLogger {
+  -history : List<Transaction>
+  +onTransaction(t : Transaction)
+  +getHistory() : List<Transaction>
+}
+
+class Transaction {
+  -type : TransactionType
+  -amount : double
+  -time : LocalDateTime
+}
+
+class BankFacade
+
+BankFacade --> TransactionPublisher : publish()
+TransactionPublisher o-- "*" TransactionListener
+TransactionListener <|.. FraudDetectionService
+TransactionListener <|.. SmsNotificationService
+TransactionListener <|.. AuditLogger
+TransactionPublisher ..> Transaction
+@enduml

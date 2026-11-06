@@ -1,0 +1,38 @@
+@startuml adapter
+title Adapter Pattern - External payments
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+interface PaymentGateway {
+  +sendPayment(fromAccountId : String, receiver : String, amountKzt : double) : boolean
+  +getName() : String
+}
+
+class SwiftPaymentAdapter {
+  -swiftService : InternationalSwiftService
+  +sendPayment(...) : boolean
+}
+
+class CardPaymentAdapter {
+  -cardProcessor : LocalCardProcessor
+  +sendPayment(...) : boolean
+}
+
+class InternationalSwiftService <<third party>> {
+  +executeSwiftTransfer(senderRef : String, bicCode : String, iban : String, amountUsd : double) : String
+}
+
+class LocalCardProcessor <<third party>> {
+  +pushToCard(cardNumber : String, amountTiyn : long) : int
+}
+
+class BankFacade {
+  +transferExternal(fromId, gatewayName, receiver, amount)
+}
+
+BankFacade --> PaymentGateway
+PaymentGateway <|.. SwiftPaymentAdapter
+PaymentGateway <|.. CardPaymentAdapter
+SwiftPaymentAdapter --> InternationalSwiftService : adapts
+CardPaymentAdapter --> LocalCardProcessor : adapts
+@enduml

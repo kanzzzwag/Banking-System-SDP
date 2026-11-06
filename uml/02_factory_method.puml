@@ -1,0 +1,46 @@
+@startuml factory_method
+title Factory Method Pattern - Account creation
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+abstract class AccountCreator {
+  +openAccount(owner : Customer) : Account
+  #{abstract} createAccount(id : String, owner : Customer) : Account
+}
+class SavingsAccountCreator {
+  #createAccount(id, owner) : Account
+}
+class CheckingAccountCreator {
+  #createAccount(id, owner) : Account
+}
+class CreditAccountCreator {
+  #createAccount(id, owner) : Account
+}
+
+abstract class Account {
+  +getType() : String
+  +setInterestStrategy(s : InterestStrategy)
+}
+class SavingsAccount
+class CheckingAccount
+class CreditAccount
+
+class BankFacade {
+  -creators : Map<String, AccountCreator>
+  +openAccount(customerId, type) : Account
+}
+
+AccountCreator <|-- SavingsAccountCreator
+AccountCreator <|-- CheckingAccountCreator
+AccountCreator <|-- CreditAccountCreator
+
+Account <|-- SavingsAccount
+Account <|-- CheckingAccount
+Account <|-- CreditAccount
+
+SavingsAccountCreator ..> SavingsAccount : creates
+CheckingAccountCreator ..> CheckingAccount : creates
+CreditAccountCreator ..> CreditAccount : creates
+
+BankFacade --> AccountCreator
+@enduml

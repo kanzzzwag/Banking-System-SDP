@@ -1,0 +1,39 @@
+@startuml facade
+title Facade Pattern - BankFacade
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+class Main
+
+class BankFacade {
+  +registerCustomer(fullName, phone) : Customer
+  +openAccount(customerId, type) : Account
+  +deposit(accountId, amount)
+  +withdraw(accountId, amount)
+  +transferInternal(fromId, toId, amount)
+  +transferExternal(fromId, gatewayName, receiver, amount)
+  +applyForLoan(...) : LoanAgreement
+  +applyMonthlyInterest()
+  +showAccounts()
+  +showTransactionHistory(accountId)
+}
+
+package "Subsystem" {
+  abstract class AccountCreator
+  class "LoanAgreement.Builder" as LoanBuilder
+  interface InterestStrategy
+  class TransactionPublisher
+  class AuditLogger
+  interface PaymentGateway
+  abstract class Account
+}
+
+Main --> BankFacade : uses only
+BankFacade --> AccountCreator
+BankFacade ..> LoanBuilder
+BankFacade ..> InterestStrategy
+BankFacade --> TransactionPublisher
+BankFacade --> AuditLogger
+BankFacade --> PaymentGateway
+BankFacade o-- Account
+@enduml

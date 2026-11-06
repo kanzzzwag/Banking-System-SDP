@@ -1,0 +1,45 @@
+@startuml builder
+title Builder Pattern - LoanAgreement
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+class LoanAgreement {
+  -number : String
+  -customer : Customer
+  -amount : double
+  -termMonths : int
+  -interestRate : double
+  -collateral : String
+  -guarantor : String
+  -LoanAgreement(builder : Builder)
+  +getTotalInterest() : double
+  +getMonthlyPayment() : double
+}
+
+class "LoanAgreement.Builder" as Builder {
+  -customer : Customer
+  -amount : double
+  -termMonths : int
+  -interestRate : double
+  -collateral : String
+  -guarantor : String
+  +customer(c : Customer) : Builder
+  +amount(a : double) : Builder
+  +termMonths(t : int) : Builder
+  +interestRate(r : double) : Builder
+  +collateral(c : String) : Builder
+  +guarantor(g : String) : Builder
+  +build() : LoanAgreement
+}
+
+class BankFacade {
+  +applyForLoan(...) : LoanAgreement
+}
+
+class Customer
+
+LoanAgreement +-- Builder
+Builder ..> LoanAgreement : builds
+LoanAgreement --> Customer
+BankFacade ..> Builder : uses
+@enduml

@@ -1,0 +1,38 @@
+@startuml strategy
+title Strategy Pattern - Interest calculation
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+interface InterestStrategy {
+  +calculateMonthlyInterest(amount : double) : double
+  +getAnnualRate() : double
+  +getName() : String
+}
+
+class SavingsInterestStrategy {
+  -annualRate : double
+}
+class CheckingInterestStrategy {
+  -ANNUAL_RATE : double = 0.5
+}
+class LoanInterestStrategy {
+  -annualRate : double
+}
+
+abstract class Account {
+  -interestStrategy : InterestStrategy
+  +applyMonthlyInterest() : double
+  +setInterestStrategy(s : InterestStrategy)
+}
+
+class LoanAgreement {
+  -interestStrategy : InterestStrategy
+  +getTotalInterest() : double
+}
+
+InterestStrategy <|.. SavingsInterestStrategy
+InterestStrategy <|.. CheckingInterestStrategy
+InterestStrategy <|.. LoanInterestStrategy
+Account o-- InterestStrategy : context
+LoanAgreement o-- InterestStrategy : context
+@enduml

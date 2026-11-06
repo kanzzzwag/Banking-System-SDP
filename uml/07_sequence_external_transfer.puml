@@ -1,0 +1,37 @@
+@startuml sequence_external_transfer
+title External transfer through Facade, Adapter and Observer
+skinparam monochrome true
+
+actor User
+participant Main
+participant BankFacade
+participant "from : Account" as Account
+participant "SwiftPaymentAdapter" as Adapter
+participant "InternationalSwiftService" as Swift
+participant TransactionPublisher
+participant FraudDetectionService
+participant SmsNotificationService
+participant AuditLogger
+
+User -> Main : choose "External transfer"
+Main -> BankFacade : transferExternal(fromId, "SWIFT", "BIC/IBAN", amountKzt)
+BankFacade -> Account : withdraw(amountKzt)
+BankFacade -> Adapter : sendPayment(fromId, "BIC/IBAN", amountKzt)
+Adapter -> Adapter : convert KZT to USD, split BIC and IBAN
+Adapter -> Swift : executeSwiftTransfer(ref, bic, iban, amountUsd)
+Swift --> Adapter : "SWIFT-5001"
+Adapter --> BankFacade : true
+
+alt payment accepted
+  BankFacade -> TransactionPublisher : publish(transaction)
+  TransactionPublisher -> FraudDetectionService : onTransaction(t)
+  TransactionPublisher -> SmsNotificationService : onTransaction(t)
+  TransactionPublisher -> AuditLogger : onTransaction(t)
+else payment rejected
+  BankFacade -> Account : deposit(amountKzt)
+  BankFacade --> Main : BankException
+end
+
+BankFacade --> Main
+Main --> User : console output
+@enduml

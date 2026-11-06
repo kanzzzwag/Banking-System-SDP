@@ -1,0 +1,132 @@
+@startuml full_class_diagram
+title Banking System - Full Class Diagram
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+hide empty members
+
+package "com.bank" {
+  class Main
+  class Demo
+}
+
+package "com.bank.facade" {
+  class BankFacade {
+    +registerCustomer(fullName, phone) : Customer
+    +openAccount(customerId, type) : Account
+    +deposit(accountId, amount)
+    +withdraw(accountId, amount)
+    +transferInternal(fromId, toId, amount)
+    +transferExternal(fromId, gatewayName, receiver, amount)
+    +applyForLoan(customerId, accountId, amount, term, collateral, guarantor) : LoanAgreement
+    +applyMonthlyInterest()
+    +changeInterestStrategy(accountId, strategyType, rate)
+    +showAccounts()
+    +showTransactionHistory(accountId)
+  }
+}
+
+package "com.bank.model" {
+  class Customer
+  abstract class Account {
+    -balance : double
+    +deposit(amount)
+    +withdraw(amount)
+    +applyMonthlyInterest() : double
+    +setInterestStrategy(s : InterestStrategy)
+  }
+  class SavingsAccount
+  class CheckingAccount
+  class CreditAccount
+  class Transaction
+}
+
+package "com.bank.factory" {
+  abstract class AccountCreator {
+    #{abstract} createAccount(id, owner) : Account
+    +openAccount(owner) : Account
+  }
+  class SavingsAccountCreator
+  class CheckingAccountCreator
+  class CreditAccountCreator
+}
+
+package "com.bank.strategy" {
+  interface InterestStrategy {
+    +calculateMonthlyInterest(amount) : double
+  }
+  class SavingsInterestStrategy
+  class CheckingInterestStrategy
+  class LoanInterestStrategy
+}
+
+package "com.bank.builder" {
+  class LoanAgreement
+  class "LoanAgreement.Builder" as LoanBuilder {
+    +build() : LoanAgreement
+  }
+}
+
+package "com.bank.observer" {
+  class TransactionPublisher {
+    +subscribe(l : TransactionListener)
+    +publish(t : Transaction)
+  }
+  interface TransactionListener {
+    +onTransaction(t : Transaction)
+  }
+  class FraudDetectionService
+  class SmsNotificationService
+  class AuditLogger
+}
+
+package "com.bank.adapter" {
+  interface PaymentGateway {
+    +sendPayment(from, receiver, amountKzt) : boolean
+  }
+  class SwiftPaymentAdapter
+  class CardPaymentAdapter
+  class InternationalSwiftService
+  class LocalCardProcessor
+}
+
+Main --> BankFacade
+Demo --> BankFacade
+
+BankFacade --> AccountCreator
+BankFacade --> TransactionPublisher
+BankFacade --> PaymentGateway
+BankFacade ..> LoanBuilder
+BankFacade --> AuditLogger
+BankFacade o-- Account
+BankFacade o-- Customer
+
+Account <|-- SavingsAccount
+Account <|-- CheckingAccount
+Account <|-- CreditAccount
+Account --> Customer
+Account --> InterestStrategy
+
+AccountCreator <|-- SavingsAccountCreator
+AccountCreator <|-- CheckingAccountCreator
+AccountCreator <|-- CreditAccountCreator
+AccountCreator ..> Account : creates
+
+InterestStrategy <|.. SavingsInterestStrategy
+InterestStrategy <|.. CheckingInterestStrategy
+InterestStrategy <|.. LoanInterestStrategy
+
+LoanBuilder ..> LoanAgreement : builds
+LoanAgreement --> InterestStrategy
+LoanAgreement --> Customer
+
+TransactionPublisher o-- TransactionListener
+TransactionListener <|.. FraudDetectionService
+TransactionListener <|.. SmsNotificationService
+TransactionListener <|.. AuditLogger
+TransactionPublisher ..> Transaction
+
+PaymentGateway <|.. SwiftPaymentAdapter
+PaymentGateway <|.. CardPaymentAdapter
+SwiftPaymentAdapter --> InternationalSwiftService
+CardPaymentAdapter --> LocalCardProcessor
+@enduml
