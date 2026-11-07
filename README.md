@@ -42,4 +42,4 @@ The folder uml has the PlantUML diagrams. There is one class diagram for the who
 
 ## Team
 
-Student 1 made Builder and Factory Method. Student 2 made Adapter and Facade. Student 3 made Strategy and Observer.
+Batyrkhan made Builder and Factory Method. Nurali made Adapter and Facade. Zhalgas made Strategy and Observer.
